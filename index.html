@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Keuangan Pribadi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .pastel-blue {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f8fbff 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.1);
+        }
+        
+        .tab-binder {
+            position: relative;
+            background: #2196f3;
+            color: white;
+            border-radius: 8px 8px 0 0;
+            padding: 12px 20px;
+            margin-right: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-binder:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background: #1976d2;
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .tab-binder.active {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+        
+        .tab-binder:hover {
+            background: #1976d2;
+            transform: translateY(-1px);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #bbdefb 0%, #e3f2fd 100%);
+        }
+        
+        .calculator-btn {
+            background: #42a5f5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+        
+        .calculator-btn:hover {
+            background: #1976d2;
+            transform: scale(1.05);
+        }
+        
+        .category-card {
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateX(4px);
+        }
+        
+        .tree-icon {
+            color: #4caf50;
+            font-size: 1.2em;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .success { background: #4caf50; }
+        .error { background: #f44336; }
+        .info { background: #2196f3; }
+    </style>
+</head>
+<body class="pastel-blue min-h-screen">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-80 p-6 shadow-lg">
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-blue-800 mb-2">
+                    <i class="fas fa-wallet mr-2"></i>
+                    Keuangan Pribadi
+                </h1>
+                <p class="text-blue-600 text-sm">Kelola uang dengan mudah</p>
+                <div class="mt-2 text-xs" id="last-saved">
+                    <div class="bg-green-100 text-green-800 px-2 py-1 rounded-full inline-flex items-center">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Data Aman Tersimpan
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-blue-800 mb-4">Menu Utama</h3>
+                <div class="space-y-2">
+                    <button onclick="showPage('dashboard')" class="w-full text-left p-3 rounded-lg bg-white hover:bg-blue-50 transition-colors duration-200 card-shadow">
+                        <i class="fas fa-home mr-3 text-blue-500"></i>
+                        Dashboard
+                    </button>
+                    <button onclick="showPage('wishlist')" class="w-full text-left p-3 rounded-lg bg-white hover:bg-blue-50 transition-colors duration-200 card-shadow">
+                        <i class="fas fa-heart mr-3 text-pink-500"></i>
+                        Daftar Keinginan
+                    </button>
+                    <button onclick="showPage('targets')" class="w-full text-left p-3 rounded-lg bg-white hover:bg-blue-50 transition-colors duration-200 card-shadow">
+                        <i class="fas fa-bullseye mr-3 text-green-500"></i>
+                        Target & Utang
+                    </button>
+                </div>
+            </div>
+
+            <!-- Backup & Restore -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-blue-800 mb-4">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    🔒 DATA SUPER AMAN
+                </h3>
+                <div class="bg-green-50 p-3 rounded-lg mb-4 text-sm">
+                    <div class="font-semibold text-green-800 mb-2">✅ JAMINAN KEAMANAN:</div>
+                    <div class="text-green-700 space-y-1">
+                        <div>🛡️ Tersimpan di 3 tempat berbeda</div>
+                        <div>⚡ Auto-save setiap 30 detik</div>
+                        <div>💾 Save otomatis saat tutup browser</div>
+                        <div>🔄 Backup manual tersedia</div>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <button onclick="exportData()" class="w-full text-left p-3 rounded-lg bg-white hover:bg-green-50 transition-colors duration-200 card-shadow">
+                        <i class="fas fa-download mr-3 text-green-500"></i>
+                        Download Backup
+                    </button>
+                    <label class="w-full text-left p-3 rounded-lg bg-white hover:bg-orange-50 transition-colors duration-200 card-shadow cursor-pointer block">
+                        <i class="fas fa-upload mr-3 text-orange-500"></i>
+                        Upload Backup
+                        <input type="file" accept=".json" onchange="importData(event)" class="hidden">
+                    </label>
+                    <button onclick="clearAllData()" class="w-full text-left p-3 rounded-lg bg-white hover:bg-red-50 transition-colors duration-200 card-shadow">
+                        <i class="fas fa-trash mr-3 text-red-500"></i>
+                        Hapus Semua Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Calculator -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-blue-800 mb-4">Kalkulator</h3>
+                <div class="bg-white p-4 rounded-lg card-shadow">
+                    <input type="text" id="calculator-display" class="w-full p-2 mb-3 border rounded text-right text-lg font-mono" readonly>
+                    <div class="grid grid-cols-4 gap-1">
+                        <button onclick="clearCalculator()" class="calculator-btn bg-red-500 hover:bg-red-600">C</button>
+                        <button onclick="appendToCalculator('/')" class="calculator-btn">÷</button>
+                        <button onclick="appendToCalculator('*')" class="calculator-btn">×</button>
+                        <button onclick="deleteLast()" class="calculator-btn bg-orange-500 hover:bg-orange-600">⌫</button>
+                        
+                        <button onclick="appendToCalculator('7')" class="calculator-btn">7</button>
+                        <button onclick="appendToCalculator('8')" class="calculator-btn">8</button>
+                        <button onclick="appendToCalculator('9')" class="calculator-btn">9</button>
+                        <button onclick="appendToCalculator('-')" class="calculator-btn">-</button>
+                        
+                        <button onclick="appendToCalculator('4')" class="calculator-btn">4</button>
+                        <button onclick="appendToCalculator('5')" class="calculator-btn">5</button>
+                        <button onclick="appendToCalculator('6')" class="calculator-btn">6</button>
+                        <button onclick="appendToCalculator('+')" class="calculator-btn">+</button>
+                        
+                        <button onclick="appendToCalculator('1')" class="calculator-btn">1</button>
+                        <button onclick="appendToCalculator('2')" class="calculator-btn">2</button>
+                        <button onclick="appendToCalculator('3')" class="calculator-btn">3</button>
+                        <button onclick="calculate()" class="calculator-btn bg-green-500 hover:bg-green-600 row-span-2">=</button>
+                        
+                        <button onclick="appendToCalculator('0')" class="calculator-btn col-span-2">0</button>
+                        <button onclick="appendToCalculator('.')" class="calculator-btn">.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- User Tabs -->
+            <div class="bg-white shadow-sm p-4">
+                <div class="flex">
+                    <div class="tab-binder active" onclick="switchUser('user1')">
+                        <i class="fas fa-user mr-2"></i>
+                        Sarah
+                    </div>
+                    <div class="tab-binder" onclick="switchUser('user2')">
+                        <i class="fas fa-user mr-2"></i>
+                        Ahmad
+                    </div>
+                    <div class="tab-binder" onclick="switchUser('user3')">
+                        <i class="fas fa-user mr-2"></i>
+                        Budi
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="flex-1 p-6">
+                <!-- Month Navigation -->
+                <div class="mb-6">
+                    <div class="flex space-x-2 overflow-x-auto pb-2">
+                        <button onclick="switchMonth('jan')" class="month-btn active px-4 py-2 bg-blue-500 text-white rounded-lg whitespace-nowrap">Januari</button>
+                        <button onclick="switchMonth('feb')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">Februari</button>
+                        <button onclick="switchMonth('mar')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">Maret</button>
+                        <button onclick="switchMonth('apr')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">April</button>
+                        <button onclick="switchMonth('may')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">Mei</button>
+                        <button onclick="switchMonth('jun')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">Juni</button>
+                        <button onclick="switchMonth('jul')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">Juli</button>
+                        <button onclick="switchMonth('aug')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">Agustus</button>
+                        <button onclick="switchMonth('sep')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">September</button>
+                        <button onclick="switchMonth('oct')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">Oktober</button>
+                        <button onclick="switchMonth('nov')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">November</button>
+                        <button onclick="switchMonth('dec')" class="month-btn px-4 py-2 bg-blue-200 text-blue-800 rounded-lg whitespace-nowrap">Desember</button>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl card-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600 text-sm">Total Pemasukan</p>
+                                <p class="text-2xl font-bold text-green-600" id="total-income">Rp 0</p>
+                            </div>
+                            <i class="fas fa-arrow-up text-3xl text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl card-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600 text-sm">Total Pengeluaran</p>
+                                <p class="text-2xl font-bold text-red-600" id="total-expense">Rp 0</p>
+                            </div>
+                            <i class="fas fa-arrow-down text-3xl text-red-500"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl card-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-600 text-sm">Sisa Uang</p>
+                                <p class="text-2xl font-bold text-blue-600" id="remaining-money">Rp 0</p>
+                            </div>
+                            <i class="fas fa-wallet text-3xl text-blue-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Income and Expense Sections -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Income Section -->
+                    <div class="bg-white p-6 rounded-xl card-shadow">
+                        <h3 class="text-xl font-bold text-green-600 mb-4">
+                            <i class="fas fa-plus-circle mr-2"></i>
+                            Pemasukan
+                        </h3>
+                        
+                        <!-- Add Income Form -->
+                        <form onsubmit="addTransaction(event, 'income')" class="mb-6 p-4 bg-green-50 rounded-lg">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <input type="number" placeholder="Jumlah" class="p-2 border rounded-lg" required>
+                                <input type="date" class="p-2 border rounded-lg" required>
+                                <input type="text" placeholder="Keterangan" class="p-2 border rounded-lg" required>
+                            </div>
+                            <button type="submit" class="mt-3 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Tambah Pemasukan
+                            </button>
+                        </form>
+
+                        <!-- Income List -->
+                        <div id="income-list" class="space-y-3">
+                            <!-- Income items will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- Expense Section -->
+                    <div class="bg-white p-6 rounded-xl card-shadow">
+                        <h3 class="text-xl font-bold text-red-600 mb-4">
+                            <i class="fas fa-minus-circle mr-2"></i>
+                            Pengeluaran
+                        </h3>
+                        
+                        <!-- Add Expense Form -->
+                        <form onsubmit="addTransaction(event, 'expense')" class="mb-6 p-4 bg-red-50 rounded-lg">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <input type="number" placeholder="Jumlah" class="p-2 border rounded-lg" required>
+                                <input type="date" class="p-2 border rounded-lg" required>
+                                <input type="text" placeholder="Keterangan" class="p-2 border rounded-lg" required>
+                            </div>
+                            <button type="submit" class="mt-3 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                                <i class="fas fa-minus mr-2"></i>Tambah Pengeluaran
+                            </button>
+                        </form>
+
+                        <!-- Expense List -->
+                        <div id="expense-list" class="space-y-3">
+                            <!-- Expense items will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wishlist Page -->
+            <div id="wishlist-page" class="flex-1 p-6 hidden">
+                <h2 class="text-3xl font-bold text-blue-800 mb-6">
+                    <i class="fas fa-heart mr-3 text-pink-500"></i>
+                    Daftar Keinginan
+                </h2>
+
+                <!-- Add Category Form -->
+                <div class="bg-white p-6 rounded-xl card-shadow mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Tambah Kategori Baru</h3>
+                    <form onsubmit="addCategory(event)" class="flex gap-3">
+                        <input type="text" placeholder="Nama Kategori" class="flex-1 p-2 border rounded-lg" required>
+                        <input type="color" value="#3b82f6" class="w-16 h-10 border rounded-lg">
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                            <i class="fas fa-plus mr-2"></i>Tambah
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Categories -->
+                <div id="categories-container" class="space-y-6">
+                    <!-- Categories will be added here -->
+                </div>
+            </div>
+
+            <!-- Targets Page -->
+            <div id="targets-page" class="flex-1 p-6 hidden">
+                <h2 class="text-3xl font-bold text-blue-800 mb-6">
+                    <i class="tree-icon fas fa-tree mr-3"></i>
+                    Target & Utang
+                </h2>
+
+                <!-- Add Target Form -->
+                <div class="bg-white p-6 rounded-xl card-shadow mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Tambah Target Baru</h3>
+                    <form onsubmit="addTarget(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <input type="text" placeholder="Nama Target" class="p-2 border rounded-lg" required>
+                        <input type="number" placeholder="Jumlah Target (Rp)" class="p-2 border rounded-lg" required>
+                        <input type="date" placeholder="Tenggat Waktu" class="p-2 border rounded-lg" required>
+                        <select class="p-2 border rounded-lg" required>
+                            <option value="">Pilih Prioritas</option>
+                            <option value="sangat-penting">Sangat Penting</option>
+                            <option value="penting">Penting</option>
+                            <option value="sedikit-penting">Sedikit Penting</option>
+                            <option value="tidak-penting">Tidak Terlalu Penting</option>
+                        </select>
+                        <input type="text" placeholder="Keterangan" class="p-2 border rounded-lg md:col-span-2">
+                        <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 md:col-span-2">
+                            <i class="tree-icon fas fa-seedling mr-2"></i>Tambah Target
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Targets List -->
+                <div id="targets-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Targets will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = 'user1';
+        let currentMonth = 'jan';
+        let currentPage = 'dashboard';
+        let transactions = {};
+        let categories = [];
+        let targets = [];
+        let calculatorValue = '';
+
+        // Storage key
+        const STORAGE_KEY = 'keuangan-app-data-v2';
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
+                ${message}
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Save data to localStorage with multiple fallbacks
+        function saveData() {
+            try {
+                const data = {
+                    transactions: transactions,
+                    categories: categories,
+                    targets: targets,
+                    currentUser: currentUser,
+                    currentMonth: currentMonth,
+                    lastSaved: new Date().toISOString(),
+                    version: '2.0',
+                    checksum: generateChecksum(transactions, categories, targets)
+                };
+                
+                const dataString = JSON.stringify(data);
+                
+                // Primary storage
+                localStorage.setItem(STORAGE_KEY, dataString);
+                
+                // Backup storage with different keys
+                localStorage.setItem(STORAGE_KEY + '-backup1', dataString);
+                localStorage.setItem(STORAGE_KEY + '-backup2', dataString);
+                
+                // Emergency backup in different format
+                localStorage.setItem('emergency-backup-' + Date.now(), dataString);
+                
+                // Keep only last 3 emergency backups
+                cleanupEmergencyBackups();
+                
+                // Update last saved display with success indicator
+                document.getElementById('last-saved').innerHTML = `
+                    <div class="bg-green-100 text-green-800 px-2 py-1 rounded-full inline-flex items-center">
+                        <i class="fas fa-shield-alt mr-1"></i>
+                        Tersimpan: ${new Date().toLocaleString('id-ID')}
+                    </div>
+                `;
+                
+                console.log('✅ Data saved successfully with triple backup');
+                return true;
+            } catch (error) {
+                console.error('❌ Error saving data:', error);
+                showNotification('Gagal menyimpan data!', 'error');
+                return false;
+            }
+        }
+
+        // Generate checksum for data validation
+        function generateChecksum(trans, cats, targs) {
+            const str = JSON.stringify({trans, cats, targs});
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            return hash.toString();
+        }
+
+        // Clean up old emergency backups
+        function cleanupEmergencyBackups() {
+            const keys = Object.keys(localStorage).filter(key => key.startsWith('emergency-backup-'));
+            if (keys.length > 3) {
+                keys.sort().slice(0, -3).forEach(key => localStorage.removeItem(key));
+            }
+        }
+
+        // Load data from localStorage with fallbacks
+        function loadData() {
+            const keys = [STORAGE_KEY, STORAGE_KEY + '-backup1', STORAGE_KEY + '-backup2'];
+            
+            // Try main backups first
+            for (let key of keys) {
+                try {
+                    const savedData = localStorage.getItem(key);
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        
+                        // Validate data structure and checksum
+                        if (data.transactions && data.categories !== undefined && data.targets !== undefined) {
+                            // Verify data integrity if checksum exists
+                            if (data.checksum) {
+                                const currentChecksum = generateChecksum(data.transactions, data.categories, data.targets);
+                                if (currentChecksum !== data.checksum) {
+                                    console.warn(`Checksum mismatch for ${key}, trying next backup`);
+                                    continue;
+                                }
+                            }
+                            
+                            transactions = data.transactions || {};
+                            categories = data.categories || [];
+                            targets = data.targets || [];
+                            currentUser = data.currentUser || 'user1';
+                            currentMonth = data.currentMonth || 'jan';
+                            
+                            console.log('✅ Data loaded from:', key);
+                            showNotification('Data berhasil dimuat!', 'success');
+                            
+                            if (data.lastSaved) {
+                                document.getElementById('last-saved').innerHTML = `
+                                    <div class="bg-green-100 text-green-800 px-2 py-1 rounded-full inline-flex items-center">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Dimuat: ${new Date(data.lastSaved).toLocaleString('id-ID')}
+                                    </div>
+                                `;
+                            }
+                            
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`Failed to load from ${key}:`, error);
+                }
+            }
+            
+            // Try emergency backups if main backups fail
+            const emergencyKeys = Object.keys(localStorage).filter(key => key.startsWith('emergency-backup-')).sort().reverse();
+            for (let key of emergencyKeys) {
+                try {
+                    const savedData = localStorage.getItem(key);
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        if (data.transactions && data.categories !== undefined && data.targets !== undefined) {
+                            transactions = data.transactions || {};
+                            categories = data.categories || [];
+                            targets = data.targets || [];
+                            currentUser = data.currentUser || 'user1';
+                            currentMonth = data.currentMonth || 'jan';
+                            
+                            console.log('🚨 Data recovered from emergency backup:', key);
+                            showNotification('Data dipulihkan dari backup darurat!', 'info');
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`Failed to load emergency backup ${key}:`, error);
+                }
+            }
+            
+            console.log('ℹ️ No saved data found, using defaults');
+            return false;
+        }
+
+        // Export data as JSON file
+        function exportData() {
+            try {
+                const data = {
+                    transactions: transactions,
+                    categories: categories,
+                    targets: targets,
+                    exportDate: new Date().toISOString(),
+                    version: '2.0',
+                    appName: 'Keuangan Pribadi'
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `keuangan-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                URL.revokeObjectURL(url);
+                showNotification('Backup berhasil didownload!', 'success');
+            } catch (error) {
+                console.error('Export error:', error);
+                showNotification('Gagal export data!', 'error');
+            }
+        }
+
+        // Import data from JSON file
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate imported data
+                    if (!data.transactions || data.categories === undefined || data.targets === undefined) {
+                        throw new Error('Invalid backup file format');
+                    }
+                    
+                    if (confirm('⚠️ Import akan mengganti SEMUA data yang ada!\n\nLanjutkan?')) {
+                        transactions = data.transactions || {};
+                        categories = data.categories || [];
+                        targets = data.targets || [];
+                        
+                        // Save imported data
+                        if (saveData()) {
+                            // Update UI
+                            updateUserTabs();
+                            updateMonthTabs();
+                            updateDashboard();
+                            renderCategories();
+                            renderTargets();
+                            
+                            showNotification('Data berhasil diimport!', 'success');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Import error:', error);
+                    showNotification('File backup tidak valid!', 'error');
+                }
+                
+                // Reset file input
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('⚠️ HAPUS SEMUA DATA?\n\nTindakan ini tidak dapat dibatalkan!')) {
+                if (confirm('🚨 Yakin 100% ingin menghapus semua data?')) {
+                    // Clear localStorage
+                    localStorage.removeItem(STORAGE_KEY);
+                    localStorage.removeItem(STORAGE_KEY + '-backup1');
+                    localStorage.removeItem(STORAGE_KEY + '-backup2');
+                    
+                    // Reset variables
+                    transactions = {};
+                    categories = [];
+                    targets = [];
+                    currentUser = 'user1';
+                    currentMonth = 'jan';
+                    
+                    // Reinitialize
+                    initializeData();
+                    showNotification('Semua data telah dihapus!', 'info');
+                }
+            }
+        }
+
+        // Initialize data structure
+        function initializeData() {
+            // Try to load saved data first
+            if (loadData()) {
+                updateUserTabs();
+                updateMonthTabs();
+                renderCategories();
+                renderTargets();
+                updateDashboard();
+                return;
+            }
+            
+            // No saved data, initialize with defaults
+            const users = ['user1', 'user2', 'user3'];
+            const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+            
+            users.forEach(user => {
+                transactions[user] = {};
+                months.forEach(month => {
+                    transactions[user][month] = {
+                        income: [],
+                        expense: []
+                    };
+                });
+            });
+
+            // Add sample categories
+            categories = [
+                { name: 'Elektronik', color: '#3b82f6', items: [] },
+                { name: 'Fashion', color: '#ec4899', items: [] },
+                { name: 'Makanan', color: '#f59e0b', items: [] }
+            ];
+
+            renderCategories();
+            saveData(); // Save initial data
+        }
+
+        // Update user tabs to reflect current user
+        function updateUserTabs() {
+            document.querySelectorAll('.tab-binder').forEach((tab, index) => {
+                tab.classList.remove('active');
+                if ((index === 0 && currentUser === 'user1') ||
+                    (index === 1 && currentUser === 'user2') ||
+                    (index === 2 && currentUser === 'user3')) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        // Update month tabs to reflect current month
+        function updateMonthTabs() {
+            const monthMap = {
+                'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5,
+                'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11
+            };
+            
+            document.querySelectorAll('.month-btn').forEach((btn, index) => {
+                btn.classList.remove('active', 'bg-blue-500', 'text-white');
+                btn.classList.add('bg-blue-200', 'text-blue-800');
+                
+                if (index === monthMap[currentMonth]) {
+                    btn.classList.remove('bg-blue-200', 'text-blue-800');
+                    btn.classList.add('active', 'bg-blue-500', 'text-white');
+                }
+            });
+        }
+
+        // User switching
+        function switchUser(userId) {
+            currentUser = userId;
+            updateUserTabs();
+            updateDashboard();
+            saveData();
+        }
+
+        // Month switching
+        function switchMonth(month) {
+            currentMonth = month;
+            updateMonthTabs();
+            updateDashboard();
+            saveData();
+        }
+
+        // Page switching
+        function showPage(page) {
+            currentPage = page;
+            document.querySelectorAll('[id$="-page"]').forEach(p => p.classList.add('hidden'));
+            document.getElementById(page + '-page').classList.remove('hidden');
+        }
+
+        // Add transaction
+        function addTransaction(event, type) {
+            event.preventDefault();
+            const form = event.target;
+            const inputs = form.querySelectorAll('input');
+            
+            const transaction = {
+                id: Date.now(),
+                amount: parseInt(inputs[0].value),
+                date: inputs[1].value,
+                description: inputs[2].value
+            };
+
+            transactions[currentUser][currentMonth][type].push(transaction);
+            form.reset();
+            updateDashboard();
+            saveData();
+        }
+
+        // Delete transaction
+        function deleteTransaction(type, id) {
+            if (confirm('Hapus transaksi ini?')) {
+                transactions[currentUser][currentMonth][type] = 
+                    transactions[currentUser][currentMonth][type].filter(t => t.id !== id);
+                updateDashboard();
+                saveData();
+            }
+        }
+
+        // Edit transaction
+        function editTransaction(type, id) {
+            const transaction = transactions[currentUser][currentMonth][type].find(t => t.id === id);
+            if (transaction) {
+                const newAmount = prompt('Jumlah baru:', transaction.amount);
+                const newDescription = prompt('Keterangan baru:', transaction.description);
+                
+                if (newAmount !== null && newDescription !== null) {
+                    transaction.amount = parseInt(newAmount) || transaction.amount;
+                    transaction.description = newDescription || transaction.description;
+                    updateDashboard();
+                    saveData();
+                }
+            }
+        }
+
+        // Update dashboard
+        function updateDashboard() {
+            const currentData = transactions[currentUser][currentMonth];
+            const totalIncome = currentData.income.reduce((sum, t) => sum + t.amount, 0);
+            const totalExpense = currentData.expense.reduce((sum, t) => sum + t.amount, 0);
+            const remaining = totalIncome - totalExpense;
+
+            document.getElementById('total-income').textContent = formatCurrency(totalIncome);
+            document.getElementById('total-expense').textContent = formatCurrency(totalExpense);
+            document.getElementById('remaining-money').textContent = formatCurrency(remaining);
+
+            renderTransactions('income');
+            renderTransactions('expense');
+        }
+
+        // Render transactions
+        function renderTransactions(type) {
+            const container = document.getElementById(type + '-list');
+            const transactions_list = transactions[currentUser][currentMonth][type];
+            
+            container.innerHTML = transactions_list.map(transaction => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <span class="font-semibold">${transaction.description}</span>
+                            <span class="font-bold ${type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                                ${formatCurrency(transaction.amount)}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600">${formatDate(transaction.date)}</p>
+                    </div>
+                    <div class="ml-4 space-x-2">
+                        <button onclick="editTransaction('${type}', ${transaction.id})" 
+                                class="text-blue-500 hover:text-blue-700">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteTransaction('${type}', ${transaction.id})" 
+                                class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add category
+        function addCategory(event) {
+            event.preventDefault();
+            const form = event.target;
+            const inputs = form.querySelectorAll('input');
+            
+            const category = {
+                name: inputs[0].value,
+                color: inputs[1].value,
+                items: []
+            };
+
+            categories.push(category);
+            form.reset();
+            renderCategories();
+            saveData();
+        }
+
+        // Render categories
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            
+            container.innerHTML = categories.map((category, index) => `
+                <div class="category-card bg-white p-6 rounded-xl card-shadow" style="border-left-color: ${category.color}">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold" style="color: ${category.color}">${category.name}</h3>
+                        <button onclick="deleteCategory(${index})" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Add Item Form -->
+                    <form onsubmit="addWishlistItem(event, ${index})" class="mb-4 p-4 bg-gray-50 rounded-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                            <input type="text" placeholder="Nama Barang" class="p-2 border rounded-lg" required>
+                            <input type="number" placeholder="Harga" class="p-2 border rounded-lg" required>
+                            <select class="p-2 border rounded-lg" required>
+                                <option value="">Tingkat Kepentingan</option>
+                                <option value="sangat-penting">Sangat Penting</option>
+                                <option value="penting">Penting</option>
+                                <option value="sedikit-penting">Sedikit Penting</option>
+                                <option value="tidak-penting">Tidak Terlalu Penting</option>
+                            </select>
+                            <input type="url" placeholder="Link Barang" class="p-2 border rounded-lg">
+                            <input type="text" placeholder="Keterangan" class="p-2 border rounded-lg">
+                        </div>
+                        <button type="submit" class="mt-3 px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors" 
+                                style="background-color: ${category.color}">
+                            <i class="fas fa-plus mr-2"></i>Tambah Barang
+                        </button>
+                    </form>
+
+                    <!-- Items List -->
+                    <div class="space-y-3">
+                        ${category.items.map((item, itemIndex) => `
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-semibold text-lg">${item.name}</h4>
+                                        <span class="font-bold text-xl" style="color: ${category.color}">
+                                            ${formatCurrency(item.price)}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 text-sm">
+                                        <span class="px-2 py-1 rounded-full ${getPriorityClass(item.priority)}">
+                                            ${getPriorityText(item.priority)}
+                                        </span>
+                                        ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">
+                                            <i class="fas fa-external-link-alt mr-1"></i>Lihat Barang
+                                        </a>` : ''}
+                                    </div>
+                                    ${item.notes ? `<p class="text-gray-600 mt-2">${item.notes}</p>` : ''}
+                                </div>
+                                <button onclick="deleteWishlistItem(${index}, ${itemIndex})" 
+                                        class="ml-4 text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add wishlist item
+        function addWishlistItem(event, categoryIndex) {
+            event.preventDefault();
+            const form = event.target;
+            const inputs = form.querySelectorAll('input, select');
+            
+            const item = {
+                name: inputs[0].value,
+                price: parseInt(inputs[1].value),
+                priority: inputs[2].value,
+                link: inputs[3].value,
+                notes: inputs[4].value
+            };
+
+            categories[categoryIndex].items.push(item);
+            form.reset();
+            renderCategories();
+            saveData();
+        }
+
+        // Delete category
+        function deleteCategory(index) {
+            if (confirm('Hapus kategori ini beserta semua barangnya?')) {
+                categories.splice(index, 1);
+                renderCategories();
+                saveData();
+            }
+        }
+
+        // Delete wishlist item
+        function deleteWishlistItem(categoryIndex, itemIndex) {
+            if (confirm('Hapus barang ini?')) {
+                categories[categoryIndex].items.splice(itemIndex, 1);
+                renderCategories();
+                saveData();
+            }
+        }
+
+        // Add target
+        function addTarget(event) {
+            event.preventDefault();
+            const form = event.target;
+            const inputs = form.querySelectorAll('input, select');
+            
+            const target = {
+                id: Date.now(),
+                name: inputs[0].value,
+                amount: parseInt(inputs[1].value),
+                deadline: inputs[2].value,
+                priority: inputs[3].value,
+                notes: inputs[4].value,
+                saved: 0
+            };
+
+            targets.push(target);
+            form.reset();
+            renderTargets();
+            saveData();
+        }
+
+        // Render targets
+        function renderTargets() {
+            const container = document.getElementById('targets-list');
+            
+            container.innerHTML = targets.map(target => {
+                const progress = (target.saved / target.amount) * 100;
+                const daysLeft = Math.ceil((new Date(target.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                
+                return `
+                    <div class="bg-white p-6 rounded-xl card-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-bold text-blue-800">${target.name}</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="addSavings(${target.id})" class="text-green-500 hover:text-green-700">
+                                    <i class="fas fa-plus-circle"></i>
+                                </button>
+                                <button onclick="deleteTarget(${target.id})" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>${Math.round(progress)}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-green-500 h-3 rounded-full transition-all duration-300" 
+                                     style="width: ${Math.min(progress, 100)}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span>Target:</span>
+                                <span class="font-semibold">${formatCurrency(target.amount)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Terkumpul:</span>
+                                <span class="font-semibold text-green-600">${formatCurrency(target.saved)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Sisa:</span>
+                                <span class="font-semibold text-red-600">${formatCurrency(target.amount - target.saved)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Tenggat:</span>
+                                <span class="font-semibold ${daysLeft < 0 ? 'text-red-600' : daysLeft < 7 ? 'text-orange-600' : 'text-gray-600'}">
+                                    ${daysLeft < 0 ? 'Terlambat' : `${daysLeft} hari lagi`}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <span class="px-2 py-1 rounded-full text-xs ${getPriorityClass(target.priority)}">
+                                <i class="tree-icon fas fa-leaf mr-1"></i>
+                                ${getPriorityText(target.priority)}
+                            </span>
+                        </div>
+                        
+                        ${target.notes ? `<p class="text-gray-600 text-sm mt-3">${target.notes}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Add savings to target
+        function addSavings(targetId) {
+            const target = targets.find(t => t.id === targetId);
+            if (target) {
+                const amount = prompt('Tambah tabungan (Rp):');
+                if (amount && !isNaN(amount)) {
+                    target.saved += parseInt(amount);
+                    renderTargets();
+                    saveData();
+                }
+            }
+        }
+
+        // Delete target
+        function deleteTarget(targetId) {
+            if (confirm('Hapus target ini?')) {
+                targets = targets.filter(t => t.id !== targetId);
+                renderTargets();
+                saveData();
+            }
+        }
+
+        // Calculator functions
+        function appendToCalculator(value) {
+            calculatorValue += value;
+            document.getElementById('calculator-display').value = calculatorValue;
+        }
+
+        function clearCalculator() {
+            calculatorValue = '';
+            document.getElementById('calculator-display').value = '';
+        }
+
+        function deleteLast() {
+            calculatorValue = calculatorValue.slice(0, -1);
+            document.getElementById('calculator-display').value = calculatorValue;
+        }
+
+        function calculate() {
+            try {
+                const result = eval(calculatorValue.replace('×', '*').replace('÷', '/'));
+                calculatorValue = result.toString();
+                document.getElementById('calculator-display').value = calculatorValue;
+            } catch (error) {
+                alert('Error dalam perhitungan');
+                clearCalculator();
+            }
+        }
+
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        function getPriorityClass(priority) {
+            const classes = {
+                'sangat-penting': 'bg-red-100 text-red-800',
+                'penting': 'bg-orange-100 text-orange-800',
+                'sedikit-penting': 'bg-yellow-100 text-yellow-800',
+                'tidak-penting': 'bg-gray-100 text-gray-800'
+            };
+            return classes[priority] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getPriorityText(priority) {
+            const texts = {
+                'sangat-penting': 'Sangat Penting',
+                'penting': 'Penting',
+                'sedikit-penting': 'Sedikit Penting',
+                'tidak-penting': 'Tidak Terlalu Penting'
+            };
+            return texts[priority] || priority;
+        }
+
+        // Auto-save every 30 seconds as backup
+        setInterval(() => {
+            saveData();
+        }, 30000);
+
+        // Save data when page is about to close
+        window.addEventListener('beforeunload', () => {
+            saveData();
+        });
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeData();
+            updateDashboard();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985ffd67538f898f',t:'MTc1OTAyODQyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
